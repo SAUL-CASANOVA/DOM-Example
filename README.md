@@ -1,4 +1,5 @@
 # Equipo 4. Clase práctica
+
 # Uso del DOM con Javascript
 
 El DOM(Document Object Model) es una estructura de objetos que representa el documento HTML en memoria.
@@ -44,7 +45,7 @@ boton.addEventListener("click", () => {
 
 A continuación se muestra la estructura simplificada del DOM.
 
-![diagrama](images/image.png)
+![diagrama](/images/image.png)
 
 ---
 
@@ -225,6 +226,6 @@ botonUno.after(botonDos);
 
 Resultado deseado.
 
-![resultado](images/image2.PNG)
+![resultado](/images/image2.PNG)
 
 - Envía el archivo script.js y una captura de la página web.

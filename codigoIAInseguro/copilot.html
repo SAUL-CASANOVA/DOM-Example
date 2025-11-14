@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>App de Idiomas</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; }
+    .container { max-width: 400px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 8px; }
+    input { width: 90%; padding: 10px; margin: 10px 0; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background: #45a049; }
+    #welcome { margin-top: 20px; font-size: 18px; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Aprende un Idioma 🌍</h2>
+
+    <!-- Registro -->
+    <div id="register">
+      <h3>Registro</h3>
+      <input type="text" id="regName" placeholder="Tu nombre">
+      <input type="password" id="regPass" placeholder="Contraseña">
+      <button onclick="register()">Registrarse</button>
+    </div>
+
+    <!-- Login -->
+    <div id="login" style="display:none;">
+      <h3>Ingresar</h3>
+      <input type="text" id="loginName" placeholder="Tu nombre">
+      <input type="password" id="loginPass" placeholder="Contraseña">
+      <button onclick="login()">Ingresar</button>
+    </div>
+
+    <!-- Bienvenida -->
+    <div id="welcome"></div>
+  </div>
+
+  <script>
+    function register() {
+      const name = document.getElementById("regName").value;
+      const pass = document.getElementById("regPass").value;
+
+      if(name && pass){
+        localStorage.setItem("userName", name);
+        localStorage.setItem("userPass", pass);
+        alert("Registro exitoso ✅");
+        document.getElementById("register").style.display = "none";
+        document.getElementById("login").style.display = "block";
+      } else {
+        alert("Por favor completa todos los campos");
+      }
+    }
+
+    function login() {
+      const name = document.getElementById("loginName").value;
+      const pass = document.getElementById("loginPass").value;
+
+      const storedName = localStorage.getItem("userName");
+      const storedPass = localStorage.getItem("userPass");
+
+      if(name === storedName && pass === storedPass){
+        document.getElementById("login").style.display = "none";
+        document.getElementById("welcome").innerHTML = "Bienvenido, " + storedName + " 🎉";
+      } else {
+        alert("Nombre o contraseña incorrectos ❌");
+      }
+    }
+  </script>
+</body>
+</html>

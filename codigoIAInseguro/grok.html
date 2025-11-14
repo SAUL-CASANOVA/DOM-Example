@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aprende Idiomas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #5a67d8;
+    }
+
+    h2 {
+      text-align: center;
+      color: #4c51bf;
+      margin-bottom: 1rem;
+    }
+
+    input, button, select {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .card {
+      background: #f7fafc;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .options button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .logout {
+      background: #e53e3e;
+      margin-top: 1rem;
+    }
+
+    .logout:hover {
+      background: #c53030;
+    }
+
+    .welcome {
+      font-size: 1.1rem;
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="authContainer">
+    <h1>🌍 Aprende Idiomas</h1>
+
+    <!-- Formulario de Registro -->
+    <div id="registerForm">
+      <h2>Registrarse</h2>
+      <input type="text" id="regName" placeholder="Tu nombre" required />
+      <input type="email" id="regEmail" placeholder="Correo electrónico" required />
+      <input type="password" id="regPassword" placeholder="Contraseña" required />
+      <button onclick="register()">Crear cuenta</button>
+      <p style="text-align:center; margin-top:1rem;">
+        ¿Ya tienes cuenta? <a href="#" onclick="showLogin()">Iniciar sesión</a>
+      </p>
+    </div>
+
+    <!-- Formulario de Login -->
+    <div id="loginForm" class="hidden">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
+      <input type="password" id="loginPassword" placeholder="Contraseña" required />
+      <button onclick="login()">Iniciar sesión</button>
+      <p style="text-align:center; margin-top:1rem;">
+        ¿No tienes cuenta? <a href="#" onclick="showRegister()">Registrarse</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pantalla principal después de login -->
+  <div class="container hidden" id="mainApp">
+    <div class="welcome" id="welcomeMessage"></div>
+    <button class="logout" onclick="logout()">Cerrar Sesión</button>
+
+    <h2>🎯 Practica Vocabulario</h2>
+    <select id="languageSelect">
+      <option value="en">Inglés</option>
+      <option value="fr">Francés</option>
+      <option value="de">Alemán</option>
+      <option value="it">Italiano</option>
+    </select>
+
+    <div id="quiz" class="hidden">
+      <div class="card" id="wordCard"></div>
+      <div class="options" id="options"></div>
+      <p id="result" style="text-align:center; margin-top:1rem; font-weight:bold;"></p>
+    </div>
+
+    <button onclick="startQuiz()" id="startBtn">Comenzar Práctica</button>
+  </div>
+
+  <script>
+    // Base de datos simulada con localStorage
+    const DB_NAME = 'languageAppUsers';
+    let currentUser = null;
+
+    // Palabras de ejemplo por idioma
+    const vocabulary = {
+      en: [
+        { word: "Hello", translation: "Hola", options: ["Hola", "Adiós", "Gracias", "Por favor"] },
+        { word: "Thank you", translation: "Gracias", options: ["Gracias", "De nada", "Hola", "Sí"] },
+        { word: "Water", translation: "Agua", options: ["Agua", "Fuego", "Aire", "Tierra"] },
+        { word: "Friend", translation: "Amigo", options: ["Amigo", "Enemigo", "Familia", "Profesor"] }
+      ],
+      fr: [
+        { word: "Bonjour", translation: "Hola", options: ["Hola", "Adiós", "Gracias", "Sí"] },
+        { word: "Merci", translation: "Gracias", options: ["Gracias", "Por favor", "No", "Sí"] },
+        { word: "Eau", translation: "Agua", options: ["Agua", "Vino", "Leche", "Café"] },
+        { word: "Ami", translation: "Amigo", options: ["Amigo", "Enemigo", "Padre", "Hermano"] }
+      ],
+      de: [
+        { word: "Hallo", translation: "Hola", options: ["Hola", "Tschüss", "Danke", "Bitte"] },
+        { word: "Danke", translation: "Gracias", options: ["Gracias", "Bitte", "Ja", "Nein"] },
+        { word: "Wasser", translation: "Agua", options: ["Agua", "Feuer", "Luft", "Erde"] },
+        { word: "Freund", translation: "Amigo", options: ["Amigo", "Feind", "Vater", "Mutter"] }
+      ],
+      it: [
+        { word: "Ciao", translation: "Hola", options: ["Hola", "Addio", "Grazie", "Per favore"] },
+        { word: "Grazie", translation: "Gracias", options: ["Gracias", "Prego", "Sì", "No"] },
+        { word: "Acqua", translation: "Agua", options: ["Agua", "Vino", "Latte", "Caffè"] },
+        { word: "Amico", translation: "Amigo", options: ["Amigo", "Nemico", "Padre", "Madre"] }
+      ]
+    };
+
+    let currentQuiz = [];
+    let currentQuestion = 0;
+
+    // Mostrar formularios
+    function showRegister() {
+      document.getElementById('registerForm').classList.remove('hidden');
+      document.getElementById('loginForm').classList.add('hidden');
+    }
+
+    function showLogin() {
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('registerForm').classList.add('hidden');
+    }
+
+    // Registro
+    function register() {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+
+      if (!name || !email || !password) {
+        alert('Completa todos los campos');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+      if (users.find(u => u.email === email)) {
+        alert('Este correo ya está registrado');
+        return;
+      }
+
+      users.push({ name, email, password });
+      localStorage.setItem(DB_NAME, JSON.stringify(users));
+      alert('¡Registro exitoso! Ahora inicia sesión.');
+      showLogin();
+    }
+
+    // Login
+    function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      const users = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (!user) {
+        alert('Correo o contraseña incorrectos');
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('authContainer').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('welcomeMessage').textContent = `¡Hola, ${user.name}! 🌟`;
+    }
+
+    // Cerrar sesión
+    function logout() {
+      currentUser = null;
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('authContainer').classList.remove('hidden');
+      showLogin();
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    // Iniciar quiz
+    function startQuiz() {
+      const lang = document.getElementById('languageSelect').value;
+      currentQuiz = [...vocabulary[lang]];
+      currentQuestion = 0;
+      document.getElementById('quiz').classList.remove('hidden');
+      document.getElementById('startBtn').classList.add('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= currentQuiz.length) {
+        document.getElementById('wordCard').textContent = '¡Felicidades! Completaste el nivel.';
+        document.getElementById('options').innerHTML = '';
+        document.getElementById('result').textContent = '';
+        document.getElementById('startBtn').classList.remove('hidden');
+        return;
+      }
+
+      const q = currentQuiz[currentQuestion];
+      document.getElementById('wordCard').textContent = q.word;
+      document.getElementById('result').textContent = '';
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, q.translation);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      const result = document.getElementById('result');
+      if (selected === correct) {
+        result.textContent = '¡Correcto! ✅';
+        result.style.color = 'green';
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion();
+        }, 1000);
+      } else {
+        result.textContent = `Incorrecto. Era: ${correct} ❌`;
+        result.style.color = 'red';
+      }
+    }
+
+    // Inicialización
+    window.onload = () => {
+      showRegister();
+    };
+  </script>
+</body>
+</html>
